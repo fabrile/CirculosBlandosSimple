@@ -9,7 +9,7 @@ let gravity = 0.0
 
 
 // Tamaño lógico del sketch
-const LOGICAL_WIDTH = 800;
+const LOGICAL_WIDTH = 1080;
 let logicalHeight;
 
 // Variables para el escalado
@@ -22,10 +22,10 @@ function calculateCanvasSize() {
   const windowAspectRatio = windowHeight / windowWidth;
   logicalHeight = Math.round(LOGICAL_WIDTH * windowAspectRatio);
   
-  // Calcular el factor de escala para pantallas más anchas que 800px
+  // Calcular el factor de escala para pantallas más anchas que 1080px
   const isWideScreen = windowWidth > LOGICAL_WIDTH;
   
-  // Si la pantalla es más ancha que 800px, usamos escala 1 y dejamos que el CSS haga el escalado
+  // Si la pantalla es más ancha que 1080px, usamos escala 1 y dejamos que el CSS haga el escalado
   if (isWideScreen) {
     return {
       width: LOGICAL_WIDTH,
@@ -35,7 +35,7 @@ function calculateCanvasSize() {
     };
   }
   
-  // Para pantallas más angostas que 800px, escalamos para que quepa
+  // Para pantallas más angostas que 1080px, escalamos para que quepa
   const scale = windowWidth / LOGICAL_WIDTH;
   return {
     width: windowWidth,
