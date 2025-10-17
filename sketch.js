@@ -8,25 +8,82 @@ let gravity = 0.0
 
 
 
-function setup() {
-  createCanvas(windowWidth, windowHeight);
-  //randomSeed(10);
-  
+// Tamaño lógico del sketch
+const LOGICAL_WIDTH = 800;
+let logicalHeight;
 
-  //El Granero será la estructura que contiene a las bolsas de semillas. 
-  //El Ganero contiene Bolsas y las bolsas Semillas
-  let cantGranero = Math.floor(Math.random() * 3 ) + 1
+// Variables para el escalado
+let canvas;
+let displayWidth, displayHeight;
+let pixelDensityValue;
+
+function calculateCanvasSize() {
+  // Calcular la altura lógica basada en la relación de aspecto de la ventana
+  const windowAspectRatio = windowHeight / windowWidth;
+  logicalHeight = Math.round(LOGICAL_WIDTH * windowAspectRatio);
+  
+  // Calcular el factor de escala para pantallas más anchas que 800px
+  const isWideScreen = windowWidth > LOGICAL_WIDTH;
+  
+  // Si la pantalla es más ancha que 800px, usamos escala 1 y dejamos que el CSS haga el escalado
+  if (isWideScreen) {
+    return {
+      width: LOGICAL_WIDTH,
+      height: logicalHeight,
+      scale: windowWidth / LOGICAL_WIDTH,
+      isWideScreen: true
+    };
+  }
+  
+  // Para pantallas más angostas que 800px, escalamos para que quepa
+  const scale = windowWidth / LOGICAL_WIDTH;
+  return {
+    width: windowWidth,
+    height: Math.round(logicalHeight * scale),
+    scale: scale,
+    isWideScreen: false
+  };
+}
+
+function setup() {
+  // Configurar la densidad de píxeles para pantallas de alta resolución
+  pixelDensity(1);
+  
+  // Calcular dimensiones lógicas
+  const windowAspectRatio = windowHeight / windowWidth;
+  logicalHeight = Math.round(LOGICAL_WIDTH * windowAspectRatio);
+  
+  // Crear el canvas con el tamaño lógico
+  canvas = createCanvas(LOGICAL_WIDTH, logicalHeight);
+  canvas.parent('sketch-container');
+  
+  // Configurar el contenedor
+  const container = document.getElementById('sketch-container');
+  container.style.width = '100%';
+  container.style.height = '100%';
+  container.style.display = 'flex';
+  container.style.justifyContent = 'center';
+  container.style.alignItems = 'center';
+  
+  // Configurar el canvas para escalado suave
+  const canvasElement = canvas.elt;
+  canvasElement.style.width = '100%';
+  canvasElement.style.height = 'auto';
+  canvasElement.style.maxWidth = '100%';
+  canvasElement.style.maxHeight = '100%';
+  canvasElement.style.objectFit = 'contain';
+  canvasElement.style.imageRendering = 'crisp-edges';
+  
+  // Inicializar elementos del sketch
+  let cantGranero = Math.floor(Math.random() * 3) + 1;
   initGranero(cantGranero);
   
-  let cantCirculosBlandos = Math.floor(Math.random() * (7 - 3 + 1)) + 3
+  let cantCirculosBlandos = Math.floor(Math.random() * (7 - 3 + 1)) + 3;
   initCirculosBlandos(5);
-
-  //noLoop()
- 
-  setTimeout(doubleClicked, 60000);
-  let noir = false;
-  let gravity = 0.0
   
+  setTimeout(doubleClicked, 60000);
+  noir = false;
+  gravity = 0.0;
 }
 
 function draw() {
@@ -68,7 +125,31 @@ function mouseReleased() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  // Calcular nueva altura lógica basada en el ancho de la ventana
+  const windowAspectRatio = windowHeight / windowWidth;
+  logicalHeight = Math.round(LOGICAL_WIDTH * windowAspectRatio);
+  
+  // Redimensionar el canvas manteniendo el tamaño lógico
+  resizeCanvas(LOGICAL_WIDTH, logicalHeight);
+  
+  // Configurar el canvas para escalado suave
+  const canvasElement = canvas.elt;
+  if (windowWidth > LOGICAL_WIDTH) {
+    // Para pantallas anchas, limitamos el ancho a 800px
+    canvasElement.style.width = `${LOGICAL_WIDTH}px`;
+    canvasElement.style.height = 'auto';
+  } else {
+    // Para pantallas angostas, escalamos proporcionalmente
+    const scale = windowWidth / LOGICAL_WIDTH;
+    canvasElement.style.width = '100%';
+    canvasElement.style.height = 'auto';
+  }
+  
+  // Reajustar la posición de los elementos si es necesario
+  for (let circulo of circulosBlandos) {
+    circulo.pos.x = constrain(circulo.pos.x, 0, width);
+    circulo.pos.y = constrain(circulo.pos.y, 0, height);
+  }
 }
 
 
